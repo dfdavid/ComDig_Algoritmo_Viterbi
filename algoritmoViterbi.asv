@@ -27,10 +27,10 @@ cost_matrix=zeros(4,1); %inicializo la matriz de costos
 
 %% TRELLIS provisto como matriz
 %       [State, PrevStateEdge1, PrevStateEdge2, Input, OutputEdge1, OutputEdge2]
-Trellis=[1             1              3         -1       1    -1       -1   1
-         2             1              3          1      -1    -1        1  -1
-         3             2              4         -1       1     1       -1  -1
-         4             2              4          1      -1    -1        1   1
+Trellis=[1             1              3         -1           1           -1 -1  1
+         2  1  3  1 -1  -1  1 -1
+         3  2  4 -1  1   1 -1 -1
+         4  2  4  1 -1  -1  1  1
          ];
 
 
