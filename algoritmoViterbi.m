@@ -28,12 +28,12 @@ Estados=[-1 -1;
 state_matrix=zeros(4,tamVentana); %aca se inicializa la matriz de estados
 
 %% COST_VECTOR 
-%esta matriz guarda el costo acumulado en cada estado, no es necesario que
+%este vector guarda el costo acumulado en cada estado, no es necesario que
 %se guarde el historico de los costos de estados. Se puede implementar como
 %un vector: [cantEstados,1]
 
 % cost_matrix=randi(20,4,7); 
-cost_matrix=zeros(4,1); %inicializo la matriz de costos
+cost_vector=zeros(4,1); %inicializo la matriz de costos
 
 
 
