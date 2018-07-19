@@ -1,4 +1,4 @@
-function s=traceback(state_matrix,cost_matrix, tamVentana,Estados)
+function s=traceback(state_matrix,cost_vector, tamVentana,Estados)
     dimensiones=size(state_matrix);
     nEstados=dimensiones(1);
 %     nIteraciones=dimensiones(2);
@@ -10,8 +10,8 @@ function s=traceback(state_matrix,cost_matrix, tamVentana,Estados)
         if e==1 %solo entro en la primera pasada para inicializar
             max=0;
         end
-        if (cost_matrix(e,tamVentana)>max )
-            max=cost_matrix(e,tamVentana);
+        if (cost_vector(e)>max )
+            max=cost_vector(e);
             eInicial=e;
         end
     end
