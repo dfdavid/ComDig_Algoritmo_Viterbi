@@ -39,13 +39,63 @@ cost_vector=zeros(4,1); %inicializo la matriz de costos
 
 
 
-%si la state_matrix esta llena se llama a traceback
+% voy recorriendo de a una las tuplas recibidas y lleno la state_matrix y
+% el cost_vector iteracion tras iteracion
 
-while 1
+dimension=size(y_matrix);
+cantFilas=dimension(1);
+
+for j=1:cantFilas %aca inicio el recorrido por las tuplas
     
-    if length(state_matrix)>=tamVentana
-    simbolo=traceback(state_matrix,cost_matrix,tamVentana,Estados);
+    %si el sistema esta iniciando, se asume que parte del estado 1 de la
+    %primera iteracion del trellis
+    
+    if j==1 %si se trata de la primera tupla, asumo que el sistema se inicia en el estado 1
+            costA=y_matrix(j)*trellis(e,[5:6]); %este es el producto punto entre la tupla recibida y el peso de la rama
+            costB=y_matrix(j)*trellis(e,[7:8]);
+            cost_vector(e)=max(costA,costB);
+            state_matrix(1,1)=1; % al inicio no existe otra psibilidad para el estado previo por eso es =1
     end
-    disp('el simbolo decodificado es: ')
-    disp(simbolo)
+    
+    if j==2
+        for e2=1:2 % en la segunda tupla recibida despues de un reset solo podran ser alcanzados los dos primeros estados
+           costA=recibido(j)*trellis(e2,(5:6));
+           costB=recibido(j)*trellis(e2,(7:8));
+           %en el siguiente bloque 'if' se determina: 
+           % -la mayor metrica de estado (la guardo en el cost vector) y,
+           % -cual es el estado de procedencia (lo guardo en la state_matrix)
+           if costA > costB
+               cost_vector(e2)=cost_vector(e2)+ costA;
+               state_matrix(e2,j)= trellis(e2,2);
+           else
+               cost_vector(e2)=cost_vector(e2)+ costB;
+               state_matrix(e2,j)= trellis(e2,3);
+           end
+        end
+    end
+    
+    %cuando el sistema entra en regimen, en este caso para j=3 en adelante
+    %se recorren todos los estados para calcular la metrica de estado
+    for e=1:length(Estados)
+           costA=recibido(j)*trellis(e2,(5:6));
+           costB=recibido(j)*trellis(e2,(7:8));
+           
+           if costA > costB
+               cost_vector(e)=cost_vector(e)+ costA;
+               state_matrix(e,j)=trellis(e,2);
+           else 
+               cost_vector(e)=cost_vector(e)+costB;
+               state_matrix(e,j)=trellis(e,3);
+           end
+    end
+    
+    if j>=tamventana
+        simbolo_decodificado=traceback(state_matrix, cost_vector, tamventana, Estados);
+        disp('el simbolo decodificado es: ')
+        disp(simbolo_decodificado)
+        
+        %shift state_matrix
+        state_matrix=[state_matrix(:,(2:tamVentana),zeros(length(Estados),1))];
+    end
+    
 end
