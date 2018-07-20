@@ -83,15 +83,15 @@ for j=1:cantFilas %aca inicio el recorrido por las tuplas
       %cuando el sistema entra en regimen, en este caso para j=3 en adelante
       %se recorren todos los estados para calcular la metrica de estado
 	    for e=1:length(Estados)
-	           costA=y_matrix(j)*trellis(e2,(5:6));
-	           costB=y_matrix(j)*trellis(e2,(7:8));
+	           costA=y_matrix(j)*Trellis(e2,(5:6));
+	           costB=y_matrix(j)*Trellis(e2,(7:8));
 	           
 	           if costA > costB
 	               cost_vector(e)=cost_vector(e)+ costA;
-	               state_matrix(e,j)=trellis(e,2);
+	               state_matrix(e,j)=Trellis(e,2);
 	           else 
 	               cost_vector(e)=cost_vector(e)+costB;
-	               state_matrix(e,j)=trellis(e,3);
+	               state_matrix(e,j)=Trellis(e,3);
 	           end
     	end
     end
