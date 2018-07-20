@@ -5,6 +5,10 @@ close all
 
 simbolos=[1 1 1 -1 1 -1 -1 1];  %esta es una secuencia es arbitraria de 8 bits
 
+y_matrix=[-1 -1; 1 -1; 1 1; -1 1; 1 -1; 1 -1; -1 -1; -1 -1];
+
+
+
 %% TRELLIS provisto como matriz
 %       [State, PrevStateEdge1, PrevStateEdge2, Input, OutputEdge1, OutputEdge2]
 Trellis=[1             1              3         -1       1    -1       -1   1
@@ -17,7 +21,7 @@ tamVentana=3; %es igual a la profundidad de truncamiento (normalmente es cantEst
 Estados=[-1 -1;
          -1  1;
           1 -1;
-          1  1] % Esta matriz guarda los estados posibles del trellis
+          1  1]; % Esta matriz guarda los estados posibles del trellis
 
 %% STATE_MATRIX
 % R = randi(IMAX,N) returns an N-by-N matrix containing pseudorandom
@@ -33,12 +37,12 @@ state_matrix=zeros(4,tamVentana); %aca se inicializa la matriz de estados
 %un vector: [cantEstados,1]
 
 % cost_matrix=randi(20,4,7); 
-cost_vector=zeros(4,1); %inicializo la matriz de costos
+cost_vector=zeros(4,1); %inicializo el vector de costos
 
 
 
 
-
+%% ALGORITMO DE VITERBI
 % voy recorriendo de a una las tuplas recibidas y lleno la state_matrix y
 % el cost_vector iteracion tras iteracion
 
@@ -51,9 +55,9 @@ for j=1:cantFilas %aca inicio el recorrido por las tuplas
     %primera iteracion del trellis
     
     if j==1 %si se trata de la primera tupla, asumo que el sistema se inicia en el estado 1
-            costA=y_matrix(j)*trellis(e,[5:6]); %este es el producto punto entre la tupla recibida y el peso de la rama
-            costB=y_matrix(j)*trellis(e,[7:8]);
-            cost_vector(e)=max(costA,costB);
+            costA=y_matrix(j,(1:2))*Trellis(1,(5:6))'; %este es el producto punto entre la tupla recibida y el peso de la rama
+            costB=y_matrix(j,:)*Trellis(1,[7:8])';
+            cost_vector(1)=max(costA,costB);
             state_matrix(1,1)=1; % al inicio no existe otra psibilidad para el estado previo por eso es =1
     end
     

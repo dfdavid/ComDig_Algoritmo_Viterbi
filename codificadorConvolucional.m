@@ -3,7 +3,7 @@ close all;
 
 %% %encoder
 
-codeword=[1 -1 -1 1 1];
+codeword=[1 1 1 -1 1 -1 -1 1];
 
 salidas=zeros(length(codeword),2);
 %recorrido de la codeword
@@ -31,8 +31,8 @@ for j=1:length(codeword)
 end
 %% decoder
 
-numEstados=4;
-profTruncamiento=5*numEstados;
-
-satate_matrix=zeros(numEstados,numEstados*5);
-cost_matrix=zeros(numEstados,length(codeword)+3);
+% numEstados=4;
+% profTruncamiento=5*numEstados;
+% 
+% satate_matrix=zeros(numEstados,numEstados*5);
+% cost_matrix=zeros(numEstados,length(codeword)+3);
