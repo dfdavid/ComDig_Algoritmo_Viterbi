@@ -1,7 +1,8 @@
 function s=traceback(state_matrix,cost_vector, tamVentana,Estados)
     dimensiones=size(state_matrix);
     nEstados=dimensiones(1);
-%     nIteraciones=dimensiones(2);
+    %nIteraciones=dimensiones(2);
+    
     %determino en la ultima columna de state_matrix cual es el estado
     %inicial 
     for e=1:nEstados 
@@ -9,6 +10,7 @@ function s=traceback(state_matrix,cost_vector, tamVentana,Estados)
         %pasada anterior
         if e==1 %solo entro en la primera pasada para inicializar
             max=0;
+            eInicial=1;
         end
         if (cost_vector(e)>max )
             max=cost_vector(e);
