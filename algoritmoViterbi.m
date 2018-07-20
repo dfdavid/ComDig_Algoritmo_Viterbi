@@ -63,8 +63,8 @@ for j=1:cantFilas %aca inicio el recorrido por las tuplas
     
     if j==2
         for e2=1:2 % en la segunda tupla recibida despues de un reset solo podran ser alcanzados los dos primeros estados
-           costA=recibido(j)*trellis(e2,(5:6));
-           costB=recibido(j)*trellis(e2,(7:8));
+           costA=y_matrix(j)*trellis(e2,(5:6));
+           costB=y_matrix(j)*trellis(e2,(7:8));
            %en el siguiente bloque 'if' se determina: 
            % -la mayor metrica de estado (la guardo en el cost vector) y,
            % -cual es el estado de procedencia (lo guardo en la state_matrix)
@@ -81,8 +81,8 @@ for j=1:cantFilas %aca inicio el recorrido por las tuplas
     %cuando el sistema entra en regimen, en este caso para j=3 en adelante
     %se recorren todos los estados para calcular la metrica de estado
     for e=1:length(Estados)
-           costA=recibido(j)*trellis(e2,(5:6));
-           costB=recibido(j)*trellis(e2,(7:8));
+           costA=y_matrix(j)*trellis(e2,(5:6));
+           costB=y_matrix(j)*trellis(e2,(7:8));
            
            if costA > costB
                cost_vector(e)=cost_vector(e)+ costA;
