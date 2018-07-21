@@ -119,9 +119,24 @@ ultimaCol=tamVentana;
 while j<length(y_matrix)
    j=j+1;
    %llamar al llenador de matrices o escribirlo aqui
+   for e=1:length(Estados)                              %
+       costA=y_matrix(j,:)*Trellis(e,(5:6))';           %
+       costB=y_matrix(j,:)*Trellis(e,(7:8))';           %
+       if costA > costB                                 %   ESTE ES EL BLOQUE LLENADOR DE COST_VECTOR Y
+           cost_vector(e)=cost_vector(e)+costA;         %                                 SATATE_MATRIX
+           state_matrix(e,tamVentana)=Trellis(e,2);     %
+       else                                             %  
+           cost_vector(e)=cost_vector(e)+costB;         %
+           state_matrix(e,tamVentana)=Trellis(e,3);     %
+       end                                              %
+   end                                                  % 
    
    %llamar a traceback
+   simbolo_decodificado=traceback(state_matrix,cost_vector, tamVentana, Estados);
+   disp('El simbolo decodificado es: ')
+   disp(simbolo_decodificado)
    
    %llamar a shift
+   state_matrix=shift(state_matrix);
 end
 
