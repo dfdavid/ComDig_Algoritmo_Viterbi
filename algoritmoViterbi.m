@@ -3,9 +3,9 @@ close all
 
 %% SECUENCIA DE SIMBOLOS
 
-simbolos=[1 1 1 -1 1 -1 -1 1];  %esta es una secuencia es arbitraria de 8 bits
+simbolos=[1 -1 -1 1 1 ];  %esta es una secuencia es arbitraria de 8 bits
 
-y_matrix=[-1 -1; 1 -1; 1 1; -1 1; 1 -1; 1 -1; -1 -1; -1 -1];
+y_matrix=[1 -1; -1 -1; -1 -1; -1 -1; -1 1];
 
 
 
@@ -30,6 +30,7 @@ Estados=[-1 -1;
 
 % state_matrix=randi(4,4,7);
 state_matrix=zeros(4,tamVentana); %aca se inicializa la matriz de estados
+state_matrix(1,1)=1: %el sistema inicia desde el estado S1 (ver Trellis completo)
 
 %% COST_VECTOR 
 %este vector guarda el costo acumulado en cada estado, no es necesario que
@@ -54,13 +55,14 @@ for j=1:tamVentana %aca inicio el recorrido por las tuplas
     %si el sistema esta iniciando, se asume que parte del estado 1 de la
     %primera iteracion del Trellis
     
-%     if j==1 %si se trata de la primera tupla, asumo que el sistema se inicia en el estado 1
+    if j==1 %si se trata de la primera tupla, asumo que el sistema se inicia en el estado 1
 % 
 %             costA=y_matrix(j,(1:2))*Trellis(1,(5:6))'; %este es el producto punto entre la tupla recibida y el peso de la rama
 %             costB=y_matrix(j,:)*Trellis(1,[7:8])';
 %             cost_vector(1)=max(costA,costB);
-%             state_matrix(1,1)=1; % al inicio no existe otra psibilidad para el estado previo por eso es =1
-% 
+              state_matrix(1,1)=1; % al inicio no existe otra psibilidad para el estado previo por eso es =1
+    end
+    
 %     elseif j==2
 %             for e2=1:2 % en la segunda tupla recibida despues de un reset solo podran ser alcanzados los dos primeros estados
 %                 costA=y_matrix(j,:)*Trellis(e2,(5:6))';
@@ -116,7 +118,7 @@ end
 %j=tamVentana+1;      no incremento 'j' aca porque lo hago dentro del ciclo
                       %while
 ultimaCol=tamVentana;
-while j<length(y_matrix)
+while j<length(y_matrix) %debo considerar sumarle el retardo que tiene al inicializar, PROBAR CON length(y_matrix+2)
    j=j+1;
    %llamar al llenador de matrices o escribirlo aqui
    for e=1:length(Estados)                              %
