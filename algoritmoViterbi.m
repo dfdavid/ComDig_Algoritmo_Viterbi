@@ -52,6 +52,8 @@ cost_vector=zeros(4,1); %inicializo el vector de costos
 dimension=size(y_matrix);
 cantFilas=dimension(1); %cantidad de tuplas que se recibieron
 
+
+%TRABAJANDO ACA
 for j=1:tamVentana %aca inicio el recorrido por las tuplas
     
     %si el sistema esta iniciando, se asume que parte del estado 1 de la
