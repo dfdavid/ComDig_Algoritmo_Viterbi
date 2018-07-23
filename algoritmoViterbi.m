@@ -3,9 +3,11 @@ close all
 
 %% SECUENCIA DE SIMBOLOS
 
+
 simbolos=[1 -1 -1 1 1 ];  %esta es una secuencia es arbitraria de 8 bits
 
 y_matrix=[1 -1; -1 -1; -1 -1; -1 -1; -1 1];
+
 
 
 
@@ -30,7 +32,7 @@ Estados=[-1 -1;
 
 % state_matrix=randi(4,4,7);
 state_matrix=zeros(4,tamVentana); %aca se inicializa la matriz de estados
-state_matrix(1,1)=1: %el sistema inicia desde el estado S1 (ver Trellis completo)
+state_matrix(1,1)=1; %el sistema inicia desde el estado S1 (ver Trellis completo)
 
 %% COST_VECTOR 
 %este vector guarda el costo acumulado en cada estado, no es necesario que
