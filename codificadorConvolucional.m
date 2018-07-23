@@ -1,9 +1,9 @@
-clear all;
-close all; 
+% clear all;
+% close all; 
 
 %% %encoder
-
-codeword=[1 1 1 -1 1 -1 -1 1];
+function salidas=codificadorConvolucional(codeword)
+codeword=[1 1 1 -1 -1 1 -1 1 -1 -1 1];
 
 salidas=zeros(length(codeword),2);
 %recorrido de la codeword

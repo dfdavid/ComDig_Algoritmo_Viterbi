@@ -3,9 +3,10 @@ close all
 
 %% SECUENCIA DE SIMBOLOS
 
-simbolos=[1 1 1 -1 1 -1 -1 1];  %esta es una secuencia es arbitraria de 8 bits
+simbolos=[1 -1 1 -1 1 1 -1 1 -1 -1 1];  %esta es una secuencia es arbitraria de bits
 
 y_matrix=[-1 -1; 1 -1; 1 1; -1 1; 1 -1; 1 -1; -1 -1; -1 -1];
+Y_matrix=codificadorConvolucional(simbolos);
 
 
 
