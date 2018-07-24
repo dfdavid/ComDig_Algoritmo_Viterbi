@@ -90,17 +90,48 @@ for j=1:tamVentana %aca inicio el recorrido por las tuplas
       %se recorren todos los estados para calcular la metrica de estado
 	    
       for e=1:length(Estados) %
-	           costA=y_matrix(j,:)*Trellis(e,(5:6))';
-	           costB=y_matrix(j,:)*Trellis(e,(7:8))';
+	           if e==1 %entonces puedo venir de s1 o  s3
+                   
+                   metrica_r1=y_matrix(j,:)*Trellis(1,(5:6))';
+                   costo_total1= cost_vector(e)+metrica_r1;
+               
+                   metrica_r3=y_matrix(j,:)*Trellis(3,(7:8))';
+                   costo_total3=cost_vector(3)+ metrica_r3;
+                   
+                   if costo_total1 > costo_total3
+                      cost_vector(e) =  costo_total1;
+                      state_matrix(e,j) = 1;
+                   else
+                       cost_vector(e) = costo_total3;
+                       state_matrix(e,j) = 3;
+                   end
+                   
+               
+               end
+               
+               
+               if e==2 %aca se consideran las ramas que llegan al s2
+                   costo_rama1=
+                   
+                   
+                   costo_rama3
+                   
+               end % fin calculo de metrica de s2
 	           
-	           if costA > costB
-	               cost_vector(e)=cost_vector(e)+ costA;
-	               state_matrix(e,j)=Trellis(e,2);
-	           else 
-	               cost_vector(e)=cost_vector(e)+costB;
-	               state_matrix(e,j)=Trellis(e,3);
-	           end
-    	end
+               
+	           if e==3 %aca considero las ramas que llegan al s3
+                   
+               
+               end % fin calculo de metrica de s3
+               
+               
+               if e==4 %aca considero las ramas que llegan a s4
+                   
+                
+               end % fin calculo de metrica de s4
+               
+               
+       end
     
         
         if j>=tamVentana
