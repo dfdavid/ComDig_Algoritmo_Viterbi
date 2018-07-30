@@ -54,7 +54,7 @@ cantFilas=dimension(1); %cantidad de tuplas que se recibieron
 
 
 %TRABAJANDO ACA
-for j=1:tamVentana %aca inicio el recorrido por las tuplas
+for j=1:tamVentana %aca inicio el recorrido por las tuplas recibidas
     
     %si el sistema esta iniciando, se asume que parte del estado 1 de la
     %primera iteracion del Trellis
@@ -90,63 +90,83 @@ for j=1:tamVentana %aca inicio el recorrido por las tuplas
       %se recorren todos los estados para calcular la metrica de estado
 	    
       for e=1:length(Estados) %
-	           if e==1 %entonces puedo venir de s1 o  s3
-                   
-                   metrica_r1=y_matrix(j,:)*Trellis(1,(5:6))';
-                   costo_total1= cost_vector(e)+metrica_r1;
+	           
+          if e==1 %entonces puedo venir de s1 o  s3
+              metrica_r1=y_matrix(j,:)*Trellis(1,(5:6))';
+              costo_total1= cost_vector(e)+metrica_r1;
                
-                   metrica_r3=y_matrix(j,:)*Trellis(3,(7:8))';
-                   costo_total3=cost_vector(3)+ metrica_r3;
+              metrica_r3=y_matrix(j,:)*Trellis(3,(7:8))';
+              costo_total3=cost_vector(3)+ metrica_r3;
                    
-                   if costo_total1 > costo_total3
-                      cost_vector(e) =  costo_total1;
-                      state_matrix(e,j) = 1;
-                   else
-                       cost_vector(e) = costo_total3;
-                       state_matrix(e,j) = 3;
-                   end
-                   
-               
-               end
-               
-               
-               if e==2 %aca se consideran las ramas que llegan al s2
-                   costo_rama1=
-                   
-                   
-                   costo_rama3
-                   
-               end % fin calculo de metrica de s2
+              if costo_total1 > costo_total3
+                  cost_vector(e) =  costo_total1;
+                  state_matrix(e,j) = 1;
+              else
+                  cost_vector(e) = costo_total3;
+                  state_matrix(e,j) = 3;
+              end
+         end
+         
+         if e==2 %aca se consideran las ramas que llegan al s2
+             costo_rama1=y_matrix(j,:)*Trellis(e,(5:6))';
+             costo_camino1=cost_vector(1)+costo_rama1;
+             
+             costo_rama3=y_matrix(j,:)*Trellis(e,(7:8))';
+             costo_camino3=cost_vector(3)+costo_rama3;
+             
+             if costo_camino1 > costo_camino3
+                 cost_vector(e)=costo_camino1;
+                 state_matrix(e,j)=1;
+             else
+                 cost_vector(e)=costo_camino3;
+                 state_matrix(e,j)=3;
+             end
+         end % fin calculo de metrica de s2
 	           
                
-	           if e==3 %aca considero las ramas que llegan al s3
-                   
-               
-               end % fin calculo de metrica de s3
-               
-               
-               if e==4 %aca considero las ramas que llegan a s4
-                   
-                
-               end % fin calculo de metrica de s4
-               
-               
-       end
+         if e==3 %aca considero las ramas que llegan al s3
+             % metricas de rama y de camino para los dos estados prev
+             costo_rama2=y_matrix(j,:)*Trellis(2,(5:6))';
+             costo_camino2=cost_vector(2)+costo_rama2;
+             
+             costo_rama4=y_matrix(j,:)*Trellis(e,(7:8))';
+             costo_camino4=cost_vector(4)+costo_rama4;
+             %-------------------------------------------------------
+             if costo_camino2 > costo_camino4   %se comparan las metricas de camino (cost_vector() + metrica de rama) y se selecciona la mayor
+                 cost_vector(e)=costo_camino2;  %se actualiza el cost_vector con el costo del mayor camino (sobreviviente)
+                 state_matrix(e,j)=2;           %se carga la  state_matrix con el numero de estado previo, (el estado desde el cual se llego)
+             else                               %
+                 cost_vector(e)=costo_camino4;  %
+                 state_matrix(e,j)=4;           %
+             end
+         end  % fin calculo de metrica de s3
+                        
+         if e==4 %aca considero las ramas que llegan a s4
+             costo_rama2=y_matrix(j,:)*Trellis(e,(5:6))';
+             costo_camino2=cost_vector(2)+costo_rama2;
+             
+             costo_rama4=y_matrix(j,:)*Trellis(e,(7:8))';
+             costo_camino4=cost_vector(4)+costo_rama4;
+             %-----------------------------------------------------
+             if costo_camino2 > costo_camino4
+                 cost_vector(e)=costo_camino2,
+                 state_matrix(e,j)=2;
+             else
+                 cost_vector(e)=costo_camino4;
+                 state_matrix(e,j)=4;
+             end
+         end
+      end
     
-        
-        if j>=tamVentana
+    %este bloque if se ejecuta solo una vez, cuando se llena por primera vez la state_matrix 
+    if j>=tamVentana
+            %En este punto se llama a 'traceback'
             simbolo_decodificado=traceback(state_matrix, cost_vector, tamVentana, Estados);
             disp('el simbolo decodificado es: ') % esto podria estar dentro de la funcion TRACEBACK
             disp(simbolo_decodificado)           %   
-            
-            %shift state_matrix     //ESTO PODRIA/DEBERIA SER UNA
-            %FUNCION,ya que se va a utilizar mas adelante tambien y se
-            %repetiria codigo
-            %state_matrix=state_matrix(:,(2:tamVentana));
-            %state_matrix(:,3)=zeros(length(Estados),1);
+            %en este punto se llama a 'shift'
             state_matrix=shift(state_matrix);
-            
-        end
+    end
         
 end
 
