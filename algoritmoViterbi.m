@@ -1,5 +1,6 @@
 clear all 
 close all
+clc
 
 %% SECUENCIA DE SIMBOLOS
 
@@ -39,8 +40,11 @@ state_matrix(1,1)=1; %el sistema inicia desde el estado S1 (ver Trellis completo
 %se guarde el historico de los costos de estados. Se puede implementar como
 %un vector: [cantEstados,1]
 
-% cost_matrix=randi(20,4,7); 
 cost_vector=zeros(4,1); %inicializo el vector de costos
+cost_vector_nuevo=zeros(4,1); %este auxiliar lo uso para no alter el valor 
+                              %del cost_vector original durante los calculos. 
+                              %Por ejemplo, ver la iteracion j=3 en el
+                              %estado s2, el cost_vector(1) cambio, y lo necesito sin cambios para los siguientes if
 
 
 
@@ -53,42 +57,73 @@ dimension=size(y_matrix);
 cantFilas=dimension(1); %cantidad de tuplas que se recibieron
 
 
-%TRABAJANDO ACA
-for j=1:tamVentana %aca inicio el recorrido por las tuplas recibidas
+%TRABAJANDO ACA (estado inicial del Trellis y período transitorio )
+
+for j=1:3 % el 3 esta hardcodeado, ya que si el Trellis tuviera mas estados ese valor es funcion de la cantidad de estados
     
     %si el sistema esta iniciando, se asume que parte del estado 1 de la
     %primera iteracion del Trellis
     
     if j==1 %si se trata de la primera tupla, asumo que el sistema se inicia en el estado 1
-% 
-%             costA=y_matrix(j,(1:2))*Trellis(1,(5:6))'; %este es el producto punto entre la tupla recibida y el peso de la rama
-%             costB=y_matrix(j,:)*Trellis(1,[7:8])';
-%             cost_vector(1)=max(costA,costB);
-              state_matrix(1,1)=1; % al inicio no existe otra psibilidad para el estado previo por eso es =1
+        cost_vector(1)= 0; % 
+        state_matrix(1,1)=1; % al inicio no existe otra psibilidad para el estado previo por eso es =1
     end
     
-%     elseif j==2
-%             for e2=1:2 % en la segunda tupla recibida despues de un reset solo podran ser alcanzados los dos primeros estados
-%                 costA=y_matrix(j,:)*Trellis(e2,(5:6))';
-%                 costB=y_matrix(j,:)*Trellis(e2,(7:8))';
-%                 %en el siguiente bloque 'if' se determina:
-%                 % -la mayor metrica de estado (la guardo en el cost vector) y,
-%                 % -cual es el estado de procedencia (lo guardo en la state_matrix)
-%                 if costA > costB
-%                     cost_vector(e2)=cost_vector(e2)+ costA;
-%                     state_matrix(e2,j)= Trellis(e2,2);
-%                 else
-%                     %cost_vector(e2)=cost_vector(e2)+ costB;
-%                     %state_matrix(e2,j)= Trellis(e2,3); en la segunda
-%                     %iteracion, es decir j=2, si estoy en el S2 solo puedo
-%                     %provenir del S1
-%                     state_matrix(e2,j)=1; %forzosamente el estado previo es S1
-%                 end
-%             end
-%     else
-      %cuando el sistema entra en regimen, en este caso para j=3 en adelante
+    if j==2
+            for e=1:2 % en la segunda tupla recibida despues de un reset solo podran ser alcanzados los dos primeros estados
+                if e==1
+                    cost_vector(1)=y_matrix(j,:)*Trellis(1,(5:6))';
+                    state_matrix(1,2)=1; % en esta iteracion solo se puede llegar a s1 desde s1
+                end
+                
+                if e==2
+                    cost_vector(2)=y_matrix(j,:)*Trellis(2,(5:6))'; % en esta iteración la metrica de estado solo ha acumulado la metrica de la unica rama que atravezó
+                    state_matrix(2,2)=1; %  en esta iteracion solo se puede llegar a s2 desde s1
+                end
+            end
+    end
+    
+    if j==3
+        for e=1:4 % este 4 esta hardcodeado
+            if e==1
+                cost_vector_nuevo(1)=cost_vector(1)+y_matrix(j,:)*Trellis(1,(5:6))'; %la metrica de estao en esta iteracion corresponde a la metrica actual + la metrica de rama
+                state_matrix(1,3)=1; % en la iteración 3 solo puedo llegar a s1 desde s1
+            end
+            
+            if e==2 %ojo porque aca el cost_vector(1) cambio, y lo necesito sin cambios para los siguientes if
+                cost_vector_nuevo(2)=cost_vector(1)+y_matrix(j,:)*Trellis(2,(5:6))'; % la metrica de estado es la metrica del estado previo + la metrica de ramma hasta s2 en este caso
+                state_matrix(2,3)=1; % en la iteracion 3, solo se llega a s2 desde s1
+            end
+            
+            if e==3
+                cost_vector_nuevo(3)=cost_vector(2)+y_matrix(j,:)*Trellis(3,(5:6))';
+                state_matrix(3,3)=2; %en esta iteración solo se puede alcanzar s3 desde s2
+            end
+            
+            if e==4
+                cost_vector_nuevo(4)=cost_vector(2)+y_matrix(j,:)*Trellis(4,(5:6))'; % la metrica de estado es cost_vector s2 + metrica de rama
+                state_matrix(4,3)=2;  %en la iteración 3 solo se puede alcanzar s4 desde s2
+            end
+                        
+        end % fin del recorrido de estados en esta iteracion
+        
+        for i=1:length(cost_vector) % en este for cargo definitivamente el cost_vector con los valores nuevos obtenidos para la iteracion 3
+            cost_vector(i)=cost_vector(i);
+        end
+        
+    end % fin del if j==3, dentro del recorrido por las iteraciones de j=1:3
+end % fin del transitorio
+            
+%se llama a traceback por primera vez (con ventana de 3 iteraciones)    
+simbolo=traceback(state_matrix, cost_vector, tamVentana, Estados);
+disp('el simbolo decodificado es: ')
+disp(simbolo)
+
+      %cuando el sistema entra en regimen, en este caso para j=4 en adelante
       %se recorren todos los estados para calcular la metrica de estado
 	    
+      
+% aca comienza el estado de regimen  del Trellis      
       for e=1:length(Estados) %
 	           
           if e==1 %entonces puedo venir de s1 o  s3
@@ -149,7 +184,7 @@ for j=1:tamVentana %aca inicio el recorrido por las tuplas recibidas
              costo_camino4=cost_vector(4)+costo_rama4;
              %-----------------------------------------------------
              if costo_camino2 > costo_camino4
-                 cost_vector(e)=costo_camino2,
+                 cost_vector(e)=costo_camino2;
                  state_matrix(e,j)=2;
              else
                  cost_vector(e)=costo_camino4;
@@ -168,7 +203,7 @@ for j=1:tamVentana %aca inicio el recorrido por las tuplas recibidas
             state_matrix=shift(state_matrix);
     end
         
-end
+%end
 
 %j=tamVentana+1;      no incremento 'j' aca porque lo hago dentro del ciclo
                       %while
