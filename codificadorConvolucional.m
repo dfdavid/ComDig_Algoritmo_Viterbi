@@ -1,28 +1,31 @@
-% clear all;
-% close all; 
+%% encoder 
+% simbolos_fuente es un vector cuyas componentes son una secuencia aleatoria de -1 y 1 
+% salidas es una matriz que contiene las tuplas que el encoder genera una a
+% una segun sean los simbolos_fuente y segun el diagrama de estados del
+% codificador
 
-%% %encoder
-function salidas=codificadorConvolucional(codeword)
-codeword=[1 1 1 -1 -1 1 -1 1 -1 -1 1];
+function salidas=codificadorConvolucional(simbolos_fuente)
 
-salidas=zeros(length(codeword),2);
-%recorrido de la codeword
-for j=1:length(codeword)
+salidas=zeros(length(simbolos_fuente),2);
+%recorrido de los simbolos_fuente
+for j=1:length(simbolos_fuente)
     
-    bJota=codeword(j);
+    bJota=simbolos_fuente(j);
     %bJotaMenos1
     if j==1
         bJotaMenos1=1;
     else
-        bJotaMenos1=codeword(j-1);
+        bJotaMenos1=simbolos_fuente(j-1);
     end
+    
     %bJotaMenos2
     if (j==1 || j==2)
         bJotaMenos2=1;
     else
-        bJotaMenos2=codeword(j-2);
+        bJotaMenos2=simbolos_fuente(j-2);
     end
-    %mapa de codificacion
+    
+    %mapa de codificacion (provee la misma informacion que el diagrama de estados, que "la arquitectura" y que el Trellis)
     xJotaMenos2=bJota*bJotaMenos2;
     xJotaMenos1=bJota*bJotaMenos1*bJotaMenos2;
     
