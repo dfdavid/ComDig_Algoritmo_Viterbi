@@ -1,4 +1,4 @@
-function s=traceback(state_matrix,cost_vector, tamVentana,Estados)
+function s=traceback(state_matrix,cost_vector,tamVentana, Estados)
     dimensiones=size(state_matrix);
     nEstados=dimensiones(1);
 %     nIteraciones=dimensiones(2);
@@ -17,13 +17,15 @@ function s=traceback(state_matrix,cost_vector, tamVentana,Estados)
     end
         
         %una vez conocido el estado inicial comienza el traceback
-        for j=tamVentana:-1:1
-            eAnterior=state_matrix(eInicial,j);
-            simbolo=Estados(eInicial,1); %%Estados es una matriz cuyas filas son los estados posible y las columnas on las componentes de dichos estados
-            if j==1
-                s=simbolo;
-            end
-            eInicial=eAnterior;
+        %for j=tamVentana:-1:1 %aca debo cambiar tamVentana por
+        %tamVentana-1 (ya que para las 3 columnas de la ventana, se hacen 'dos saltos' hacia atras en el traceback)
+         for j=tamVentana:-1:2
+            ir_a=state_matrix(eInicial,j);
+            s=Estados(eInicial,1); %%Estados es una matriz cuyas filas son los estados posible y las columnas on las componentes de dichos estados
+            %if j==1
+            %    s=simbolo;
+            %end
+            eInicial=ir_a;
         end
 end
                 
