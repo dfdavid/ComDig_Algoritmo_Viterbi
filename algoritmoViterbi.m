@@ -23,6 +23,10 @@ clc
 % simbolos_fuente=[1 1 1 -1 ]; 
 % simbolos_fuente=[1 1 1 1 ]; 
 
+%en la sieguiente linea se llama a la funcion 'codificadorConvolucional'
+%que codifica los bits fuente en tuplas de acuerdo al mapa de codificacion
+%especificado en su propio codigo, en este caso, es el que propone Bixio
+%Rimoldi
 y_matrix=codificadorConvolucional(simbolos_fuente);
 
 
