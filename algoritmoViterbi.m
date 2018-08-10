@@ -15,10 +15,10 @@ clc
 % simbolos_fuente=[-1 1 1 -1 ]; 
 % simbolos_fuente=[-1 1 1 1 ]; 
 % simbolos_fuente=[1 -1 -1 -1 ]; 
-simbolos_fuente=[1 -1 -1 1 1 -1 -1 1 1 -1 -1]; 
+% simbolos_fuente=[1 -1 -1 1]; 
 % simbolos_fuente=[1 -1 1 -1 ]; 
 % simbolos_fuente=[1 -1 1 1 ]; 
-% simbolos_fuente=[1 1 -1 -1 ]; 
+simbolos_fuente=[1 1 -1 -1 ]; 
 % simbolos_fuente=[1 1 -1 1 ]; 
 % simbolos_fuente=[1 1 1 -1 ]; 
 % simbolos_fuente=[1 1 1 1 ]; 
@@ -28,6 +28,10 @@ simbolos_fuente=[1 -1 -1 1 1 -1 -1 1 1 -1 -1];
 %especificado en su propio codigo, en este caso, es el que propone Bixio
 %Rimoldi
 y_matrix=codificadorConvolucional(simbolos_fuente);
+
+%se inicializa el vector que contiene los simbolos decodificados que se ira
+%llenando con las sucesivas llamadas a traceback
+simbolos_decodificados=zeros(1, length(simbolos_fuente));
 
 
 
@@ -138,6 +142,7 @@ end % fin del transitorio
 simbolo=traceback(state_matrix, cost_vector, tamVentana, Estados);
 disp('el simbolo decodificado es: ')
 disp(simbolo)
+simbolos_decodificados(1,j-2)=simbolo; % la decodificacion tiene retardo, por eso se pone j-2
 
 	    
       
@@ -235,9 +240,10 @@ while j<length(y_matrix)+1 %debo considerar sumarle el retardo que tiene al inic
         % end
     
     %llamar a traceback
-        simbolo_decodificado=traceback(state_matrix,cost_vector, tamVentana, Estados);
+        simbolo=traceback(state_matrix,cost_vector, tamVentana, Estados);
         disp('El simbolo decodificado es: ')
-        disp(simbolo_decodificado)
+        disp(simbolo)
+        simbolos_decodificados(1,(j-(tamVentana-1)))=simbolo;
     
     %llamar a shift
         state_matrix=shift(state_matrix);
