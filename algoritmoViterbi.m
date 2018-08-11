@@ -6,7 +6,10 @@ clc
 % esta es una secuencia  arbitraria de  bits que seran codificados con la 
 % maquina de estados de ejemplo del libro de Bixio Rimoldi
 
-% simbolos_fuente=[-1 -1 -1 -1 ];  
+% simbolos_fuente=[1 -1 -1 1 1];     %EJEMPLO 1
+simbolos_fuente=[1 1 1 1 -1 1 1];  %EJEMPLO 6.1
+
+% simbolos_fuente=[-1 -1 -1 -1 ];    %CADENAS PROPUESTAS
 % simbolos_fuente=[-1 -1 -1 1 ];
 % simbolos_fuente=[-1 -1 1 -1 ];
 % simbolos_fuente=[-1 -1 1 1 ];
@@ -18,7 +21,7 @@ clc
 % simbolos_fuente=[1 -1 -1 1]; 
 % simbolos_fuente=[1 -1 1 -1 ]; 
 % simbolos_fuente=[1 -1 1 1 ]; 
-simbolos_fuente=[1 1 -1 -1 ]; 
+% simbolos_fuente=[1 1 -1 -1 ]; 
 % simbolos_fuente=[1 1 -1 1 ]; 
 % simbolos_fuente=[1 1 1 -1 ]; 
 % simbolos_fuente=[1 1 1 1 ]; 
@@ -27,7 +30,8 @@ simbolos_fuente=[1 1 -1 -1 ];
 %que codifica los bits fuente en tuplas de acuerdo al mapa de codificacion
 %especificado en su propio codigo, en este caso, es el que propone Bixio
 %Rimoldi
-y_matrix=codificadorConvolucional(simbolos_fuente);
+%  y_matrix=codificadorConvolucional(simbolos_fuente); %ORIGINAL
+y_matrix=[1 3; -2 1; 4 -1; 5 5; -3 -3; 1 -6; 2 -4] % SECUENCIA RECIBIDA DEL EJEMPLO 6.1
 
 %se inicializa el vector que contiene los simbolos decodificados que se ira
 %llenando con las sucesivas llamadas a traceback
@@ -38,7 +42,7 @@ simbolos_decodificados=zeros(1, length(simbolos_fuente));
 
 %% Trellis provisto como matriz
 %       [State, PrevStateEdge1, PrevStateEdge2, Input, OutputEdge1, OutputEdge2]
-Trellis=[1             1              3          0       1     1       -1   1
+Trellis=[1             1              3          0       1     1       -1  -1
          2             1              3          0      -1    -1        1   1
          3             2              4          0       1    -1       -1   1
          4             2              4          0      -1     1        1  -1
@@ -195,7 +199,7 @@ while j<length(y_matrix)+1 %debo considerar sumarle el retardo que tiene al inic
             end % fin calculo de metrica de s2
 
 
-            if e==3 %aca considero las ramas que llegan al s3
+              if e==3 %%%%%%%%%%%%%%%%%%%%   ENCONTRE UN ERROR ACA   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 % metricas de rama y de camino para los dos estados prev
                 costo_rama2=y_matrix(j-1,:)*Trellis(2,(5:6))';
                 costo_camino2=cost_vector(2)+costo_rama2;
@@ -228,6 +232,12 @@ while j<length(y_matrix)+1 %debo considerar sumarle el retardo que tiene al inic
                 end
             end
         end
+        
+        % FALTA ACTUALIZAR EL COST_VECTOR, Y HAY OTRO ERROR: DENTRO DEL
+        % REGIMEN, EN LA LINEA 202 SE CALCULA MAL LA METRICA DE ESTADO.
+        % PARA S1, S2 Y S3  LA METRICA DE ESTADO SE ESTA GUARDANDO EN
+        % COST_VECTOR_NUEVO (ESTA BIEN) Y PARA S4 SE ESTA GUARDANDO EN COST
+        % VECTOR (REVISAR ESO)
 
         %este bloque if se ejecuta cuando se llena la state_matrix
         % if j>=tamVentana
