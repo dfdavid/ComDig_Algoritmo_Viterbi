@@ -238,7 +238,7 @@ while j<length(y_matrix)+1 %debo considerar sumarle el retardo que tiene al inic
         % PARA S1, S2 Y S3  LA METRICA DE ESTADO SE ESTA GUARDANDO EN
         % COST_VECTOR_NUEVO (ESTA BIEN) Y PARA S4 SE ESTA GUARDANDO EN COST
         % VECTOR (REVISAR ESO)
-        for i=1:4
+        for i=1:length(cost_vector)
             cost_vector(i)=cost_vector_nuevo(i);
         end
      
