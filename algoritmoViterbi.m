@@ -8,9 +8,10 @@ clc
 
 % simbolos_fuente=[1 -1 -1 1 1];     %EJEMPLO 1
 % simbolos_fuente=[1 1 1 1 -1 1 1 ]; %EJEMPLO 6.1
-simbolos_fuente=[1 1 1 1 -1 1 1   1 1 1 1 -1 1 1];  %EJEMPLO 6.1 (se repite el mismo 2 veces)
+% simbolos_fuente=[1 1 1 1 -1 1 1   1 1 1 1 -1 1 1];  %EJEMPLO 6.1 (se repite el mismo 2 veces)
+% simbolos_fuente=[-1 1 -1 1 -1 1 1 -1 1 1     1 -1 1 1];  %EJEMPLO 6.1 (se repite el mismo 2 veces)
 
-% simbolos_fuente=[-1 -1 -1 -1 ];    %CADENAS PROPUESTAS
+simbolos_fuente=[-1 -1 -1 -1 -1 -1 -1 -1  ];    %CADENAS PROPUESTAS
 % simbolos_fuente=[-1 -1 -1 1 ];
 % simbolos_fuente=[-1 -1 1 -1 ];
 % simbolos_fuente=[-1 -1 1 1 ];
@@ -31,9 +32,10 @@ simbolos_fuente=[1 1 1 1 -1 1 1   1 1 1 1 -1 1 1];  %EJEMPLO 6.1 (se repite el m
 %que codifica los bits fuente en tuplas de acuerdo al mapa de codificacion
 %especificado en su propio codigo, en este caso, es el que propone Bixio
 %Rimoldi
-%  y_matrix=codificadorConvolucional(simbolos_fuente); %ORIGINAL
+y_matrix=codificadorConvolucional(simbolos_fuente); %ORIGINAL
 % y_matrix=[1 3; -2 1; 4 -1; 5 5; -3 -3; 1 -6; 2 -4]; % SECUENCIA RECIBIDA DEL EJEMPLO 6.1
-y_matrix=[1 3; -2 1; 4 -1; 5 5; -3 -3; 1 -6; 2 -4;     1 3; -2 1; 4 -1; 5 5; -3 -3; 1 -6; 2 -4 ]; % SECUENCIA RECIBIDA DEL EJEMPLO 6.1 (duplicado para probar)
+% y_matrix=[1 3; -2 1; 4 -1; 5 5; -3 -3; 1 -6; 2 -4;     1 3; -2 1; 4 -1; 5 5; -3 -3; 1 -6; 2 -4 ]; % SECUENCIA RECIBIDA DEL EJEMPLO 6.1 (duplicado para probar)
+
 
 %se inicializa el vector que contiene los simbolos decodificados que se ira
 %llenando con las sucesivas llamadas a traceback
@@ -341,3 +343,17 @@ while j<length(y_matrix)+1 %debo considerar sumarle el retardo que tiene al inic
     
     
 end
+
+%% Contador de errores
+
+%inicializo la cuenta de errores
+errores_de_bit=0;
+
+for i=1:length(simbolos_decodificados)-4
+    if simbolos_decodificados(i)==simbolos_fuente(i)
+        % si son iguales no hay error -> no se hace nada
+    else
+        errores_de_bit=errores_de_bit+1;
+    end
+end
+
