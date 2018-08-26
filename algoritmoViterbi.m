@@ -11,30 +11,24 @@ clc
 % simbolos_fuente=[1 1 1 1 -1 1 1   1 1 1 1 -1 1 1];  %EJEMPLO 6.1 (se repite el mismo 2 veces)
 % simbolos_fuente=[-1 1 -1 1 -1 1 1 -1 1 1     1 -1 1 1];  %EJEMPLO 6.1 (se repite el mismo 2 veces)
 
-simbolos_fuente=[-1 -1 -1 -1 -1 -1 -1 -1  ];    %CADENAS PROPUESTAS
-% simbolos_fuente=[-1 -1 -1 1 ];
-% simbolos_fuente=[-1 -1 1 -1 ];
-% simbolos_fuente=[-1 -1 1 1 ];
-% simbolos_fuente=[-1 1 -1 -1 ]; 
-% simbolos_fuente=[-1 1 -1 1 ]; 
-% simbolos_fuente=[-1 1 1 -1 ]; 
-% simbolos_fuente=[-1 1 1 1 ]; 
-% simbolos_fuente=[1 -1 -1 -1 ]; 
-% simbolos_fuente=[1 -1 -1 1]; 
-% simbolos_fuente=[1 -1 1 -1 ]; 
-% simbolos_fuente=[1 -1 1 1 ]; 
-% simbolos_fuente=[1 1 -1 -1 ]; 
-% simbolos_fuente=[1 1 -1 1 ]; 
-% simbolos_fuente=[1 1 1 -1 ]; 
-% simbolos_fuente=[1 1 1 1 ]; 
+% simbolos_fuente=[-1 -1 -1 -1 -1 -1 -1 -1  ];    %CADENAS PROPUESTAS
+simbolos_fuente=2*randi([0,1],1,10000)-1;
+
 
 %en la sieguiente linea se llama a la funcion 'codificadorConvolucional'
 %que codifica los bits fuente en tuplas de acuerdo al mapa de codificacion
 %especificado en su propio codigo, en este caso, es el que propone Bixio
 %Rimoldi
-y_matrix=codificadorConvolucional(simbolos_fuente); %ORIGINAL
-% y_matrix=[1 3; -2 1; 4 -1; 5 5; -3 -3; 1 -6; 2 -4]; % SECUENCIA RECIBIDA DEL EJEMPLO 6.1
-% y_matrix=[1 3; -2 1; 4 -1; 5 5; -3 -3; 1 -6; 2 -4;     1 3; -2 1; 4 -1; 5 5; -3 -3; 1 -6; 2 -4 ]; % SECUENCIA RECIBIDA DEL EJEMPLO 6.1 (duplicado para probar)
+simbolos_codificados=codificadorConvolucional(simbolos_fuente); %ORIGINAL
+% simbolos_codificados=[1 3; -2 1; 4 -1; 5 5; -3 -3; 1 -6; 2 -4]; % SECUENCIA RECIBIDA DEL EJEMPLO 6.1
+% simbolos_codificados=[1 3; -2 1; 4 -1; 5 5; -3 -3; 1 -6; 2 -4;     1 3; -2 1; 4 -1; 5 5; -3 -3; 1 -6; 2 -4 ]; % SECUENCIA RECIBIDA DEL EJEMPLO 6.1 (duplicado para probar)
+
+% generacion de ruido AWGN 
+ruido=generador_ruido(length(simbolos_codificados));
+ruido=ruido*1.1;
+
+% Aca se le añade el ruido
+simbolos_codificados=simbolos_codificados+ruido;
 
 
 %se inicializa el vector que contiene los simbolos decodificados que se ira
@@ -85,7 +79,7 @@ cost_vector_nuevo=zeros(4,1); %este auxiliar lo uso para no alter el valor
 % voy recorriendo de a una las tuplas recibidas y lleno la state_matrix y
 % el cost_vector iteracion tras iteracion
 
-% dimension=size(y_matrix);
+% dimension=size(simbolos_codificados);
 % cantFilas=dimension(1); %cantidad de tuplas que se recibieron
 
 
@@ -104,12 +98,12 @@ for j=1:3 % el 3 esta hardcodeado, ya que si el Trellis tuviera mas estados ese 
     if j==2
             for e=1:2 % en la segunda tupla recibida despues de un reset solo podran ser alcanzados los dos primeros estados
                 if e==1
-                    cost_vector(1)=y_matrix(j-1,:)*Trellis(1,(5:6))'; % se pone j-1 porque si estamos en j=2 la tupla recibida es la primera, y els la que provoco el salto al s1 nuevamente
+                    cost_vector(1)=simbolos_codificados(j-1,:)*Trellis(1,(5:6))'; % se pone j-1 porque si estamos en j=2 la tupla recibida es la primera, y els la que provoco el salto al s1 nuevamente
                     state_matrix(1,2)=1; % en esta iteracion solo se puede llegar a s1 desde s1
                 end
                 
                 if e==2
-                    cost_vector(2)=y_matrix(j-1,:)*Trellis(2,(5:6))'; % en esta iteración la metrica de estado solo ha acumulado la metrica de la unica rama que atravezó. Se pone j-1 porque si estamos en j=2 la tupla recibida es la 1° , y es la que provoco el salto al s2
+                    cost_vector(2)=simbolos_codificados(j-1,:)*Trellis(2,(5:6))'; % en esta iteración la metrica de estado solo ha acumulado la metrica de la unica rama que atravezó. Se pone j-1 porque si estamos en j=2 la tupla recibida es la 1° , y es la que provoco el salto al s2
                     state_matrix(2,2)=1; %  en esta iteracion solo se puede llegar a s2 desde s1
                 end
             end
@@ -118,22 +112,22 @@ for j=1:3 % el 3 esta hardcodeado, ya que si el Trellis tuviera mas estados ese 
     if j==3
         for e=1:4 % este 4 esta hardcodeado
             if e==1
-                cost_vector_nuevo(1)=cost_vector(1)+y_matrix(j-1,:)*Trellis(1,(5:6))'; %la metrica de estao en esta iteracion corresponde a la metrica actual + la metrica de rama
+                cost_vector_nuevo(1)=cost_vector(1)+simbolos_codificados(j-1,:)*Trellis(1,(5:6))'; %la metrica de estao en esta iteracion corresponde a la metrica actual + la metrica de rama
                 state_matrix(1,3)=1; % en la iteración 3 solo puedo llegar a s1 desde s1
             end
             
             if e==2 %ojo porque aca el cost_vector(1) cambio, y lo necesito sin cambios para los siguientes if
-                cost_vector_nuevo(2)=cost_vector(1)+y_matrix(j-1,:)*Trellis(2,(5:6))'; % la metrica de estado es la metrica del estado previo + la metrica de ramma hasta s2 en este caso
+                cost_vector_nuevo(2)=cost_vector(1)+simbolos_codificados(j-1,:)*Trellis(2,(5:6))'; % la metrica de estado es la metrica del estado previo + la metrica de ramma hasta s2 en este caso
                 state_matrix(2,3)=1; % en la iteracion 3, solo se llega a s2 desde s1
             end
             
             if e==3
-                cost_vector_nuevo(3)=cost_vector(2)+y_matrix(j-1,:)*Trellis(3,(5:6))';
+                cost_vector_nuevo(3)=cost_vector(2)+simbolos_codificados(j-1,:)*Trellis(3,(5:6))';
                 state_matrix(3,3)=2; %en esta iteración solo se puede alcanzar s3 desde s2
             end
             
             if e==4
-                cost_vector_nuevo(4)=cost_vector(2)+y_matrix(j-1,:)*Trellis(4,(5:6))'; % la metrica de estado es cost_vector s2 + metrica de rama
+                cost_vector_nuevo(4)=cost_vector(2)+simbolos_codificados(j-1,:)*Trellis(4,(5:6))'; % la metrica de estado es cost_vector s2 + metrica de rama
                 state_matrix(4,3)=2;  %en la iteración 3 solo se puede alcanzar s4 desde s2
             end
                         
@@ -150,8 +144,8 @@ end % fin del transitorio
 % ese caso se llamaba a traceback en este punto
 if j>= tamVentana
     simbolo=traceback(state_matrix, cost_vector, tamVentana, Estados);
-    disp('el simbolo decodificado es: ')
-    disp(simbolo)
+%     disp('el simbolo decodificado es: ')
+%     disp(simbolo)
     simbolos_decodificados(1,j-2)=simbolo; % la decodificacion tiene retardo, por eso se pone j-2
 end
 
@@ -164,10 +158,10 @@ while j<tamVentana %aqui se continua desde que termina el transitorio hasta que 
         for e=1:length(Estados) %
 
             if e==1 %entonces puedo venir de s1 o  s3
-                metrica_r1=y_matrix(j-1,:)*Trellis(1,(5:6))';
+                metrica_r1=simbolos_codificados(j-1,:)*Trellis(1,(5:6))';
                 costo_total1= cost_vector(e)+metrica_r1;
 
-                metrica_r3=y_matrix(j-1,:)*Trellis(1,(7:8))';
+                metrica_r3=simbolos_codificados(j-1,:)*Trellis(1,(7:8))';
                 costo_total3=cost_vector(3)+ metrica_r3;
 
                 if costo_total1 > costo_total3
@@ -180,10 +174,10 @@ while j<tamVentana %aqui se continua desde que termina el transitorio hasta que 
             end
 
             if e==2 %aca se consideran las ramas que llegan al s2
-                costo_rama1=y_matrix(j-1,:)*Trellis(e,(5:6))';
+                costo_rama1=simbolos_codificados(j-1,:)*Trellis(e,(5:6))';
                 costo_camino1=cost_vector(1)+costo_rama1;
 
-                costo_rama3=y_matrix(j-1,:)*Trellis(e,(7:8))';
+                costo_rama3=simbolos_codificados(j-1,:)*Trellis(e,(7:8))';
                 costo_camino3=cost_vector(3)+costo_rama3;
 
                 if costo_camino1 > costo_camino3
@@ -198,10 +192,10 @@ while j<tamVentana %aqui se continua desde que termina el transitorio hasta que 
 
             if e==3 
                 % metricas de rama y de camino para los dos estados prev
-                costo_rama2=y_matrix(j-1,:)*Trellis(3,(5:6))';
+                costo_rama2=simbolos_codificados(j-1,:)*Trellis(3,(5:6))';
                 costo_camino2=cost_vector(2)+costo_rama2;
 
-                costo_rama4=y_matrix(j-1,:)*Trellis(e,(7:8))';
+                costo_rama4=simbolos_codificados(j-1,:)*Trellis(e,(7:8))';
                 costo_camino4=cost_vector(4)+costo_rama4;
                 %-------------------------------------------------------
                 if costo_camino2 > costo_camino4   %se comparan las metricas de camino (cost_vector() + metrica de rama) y se selecciona la mayor
@@ -214,10 +208,10 @@ while j<tamVentana %aqui se continua desde que termina el transitorio hasta que 
             end  % fin calculo de metrica de s3
 
             if e==4 %aca considero las ramas que llegan a s4
-                costo_rama2=y_matrix(j-1,:)*Trellis(e,(5:6))';
+                costo_rama2=simbolos_codificados(j-1,:)*Trellis(e,(5:6))';
                 costo_camino2=cost_vector(2)+costo_rama2;
 
-                costo_rama4=y_matrix(j-1,:)*Trellis(e,(7:8))';
+                costo_rama4=simbolos_codificados(j-1,:)*Trellis(e,(7:8))';
                 costo_camino4=cost_vector(4)+costo_rama4;
                 %-----------------------------------------------------
                 if costo_camino2 > costo_camino4
@@ -239,8 +233,8 @@ end
 if j>=tamVentana
     %llamar a traceback
     simbolo=traceback(state_matrix,cost_vector, tamVentana, Estados);
-    disp('El simbolo decodificado es: ')
-    disp(simbolo)
+%     disp('El simbolo decodificado es: ')
+%     disp(simbolo)
     simbolos_decodificados(1,(j-(tamVentana-1)))=simbolo;
     
     %llamar a shift
@@ -251,7 +245,7 @@ end
 %       cuando el sistema entra en regimen, en este caso para j=4 en adelante
 %       se recorren todos los estados para calcular la metrica de estado
 
-while j<length(y_matrix)+1 %debo considerar sumarle el retardo que tiene al inicializar, PROBAR CON length(y_matrix+2)
+while j<length(simbolos_codificados)+1 %debo considerar sumarle el retardo que tiene al inicializar, PROBAR CON length(simbolos_codificados+2)
     j=j+1;
 
     %Se llama al llenador de matrices:
@@ -259,10 +253,10 @@ while j<length(y_matrix)+1 %debo considerar sumarle el retardo que tiene al inic
         for e=1:length(Estados) %
 
             if e==1 %entonces puedo venir de s1 o  s3
-                metrica_r1=y_matrix(j-1,:)*Trellis(1,(5:6))';
+                metrica_r1=simbolos_codificados(j-1,:)*Trellis(1,(5:6))';
                 costo_total1= cost_vector(e)+metrica_r1;
 
-                metrica_r3=y_matrix(j-1,:)*Trellis(1,(7:8))';
+                metrica_r3=simbolos_codificados(j-1,:)*Trellis(1,(7:8))';
                 costo_total3=cost_vector(3)+ metrica_r3;
 
                 if costo_total1 > costo_total3
@@ -275,10 +269,10 @@ while j<length(y_matrix)+1 %debo considerar sumarle el retardo que tiene al inic
             end
 
             if e==2 %aca se consideran las ramas que llegan al s2
-                costo_rama1=y_matrix(j-1,:)*Trellis(e,(5:6))';
+                costo_rama1=simbolos_codificados(j-1,:)*Trellis(e,(5:6))';
                 costo_camino1=cost_vector(1)+costo_rama1;
 
-                costo_rama3=y_matrix(j-1,:)*Trellis(e,(7:8))';
+                costo_rama3=simbolos_codificados(j-1,:)*Trellis(e,(7:8))';
                 costo_camino3=cost_vector(3)+costo_rama3;
 
                 if costo_camino1 > costo_camino3
@@ -293,10 +287,10 @@ while j<length(y_matrix)+1 %debo considerar sumarle el retardo que tiene al inic
 
             if e==3 
                 % metricas de rama y de camino para los dos estados prev
-                costo_rama2=y_matrix(j-1,:)*Trellis(3,(5:6))';
+                costo_rama2=simbolos_codificados(j-1,:)*Trellis(3,(5:6))';
                 costo_camino2=cost_vector(2)+costo_rama2;
 
-                costo_rama4=y_matrix(j-1,:)*Trellis(e,(7:8))';
+                costo_rama4=simbolos_codificados(j-1,:)*Trellis(e,(7:8))';
                 costo_camino4=cost_vector(4)+costo_rama4;
                 %-------------------------------------------------------
                 if costo_camino2 > costo_camino4   %se comparan las metricas de camino (cost_vector() + metrica de rama) y se selecciona la mayor
@@ -309,10 +303,10 @@ while j<length(y_matrix)+1 %debo considerar sumarle el retardo que tiene al inic
             end  % fin calculo de metrica de s3
 
             if e==4 %aca considero las ramas que llegan a s4
-                costo_rama2=y_matrix(j-1,:)*Trellis(e,(5:6))';
+                costo_rama2=simbolos_codificados(j-1,:)*Trellis(e,(5:6))';
                 costo_camino2=cost_vector(2)+costo_rama2;
 
-                costo_rama4=y_matrix(j-1,:)*Trellis(e,(7:8))';
+                costo_rama4=simbolos_codificados(j-1,:)*Trellis(e,(7:8))';
                 costo_camino4=cost_vector(4)+costo_rama4;
                 %-----------------------------------------------------
                 if costo_camino2 > costo_camino4
@@ -333,8 +327,8 @@ while j<length(y_matrix)+1 %debo considerar sumarle el retardo que tiene al inic
     if j>=tamVentana
     %llamar a traceback
         simbolo=traceback(state_matrix,cost_vector, tamVentana, Estados);
-        disp('El simbolo decodificado es: ')
-        disp(simbolo)
+%         disp('El simbolo decodificado es: ')
+%         disp(simbolo)
         simbolos_decodificados(1,(j-(tamVentana-1)))=simbolo;
     
     %llamar a shift
