@@ -1,8 +1,12 @@
-% clear all 
-% close all
+clear all 
+close all
 clc
 
-for SNR=1:0.5:5 %repito la simulacion para obtener  distintos valores de BER vs SNR
+iter=0; %inicializo el indice de iternaciones que uso para el vector BER
+SNRmax=6;
+SNRmin=0;
+for SNR=SNRmin:0.5:SNRmax %repito la simulacion para obtener  distintos valores de BER vs SNR
+    iter = iter+1;
     %% SECUENCIA DE SIMBOLOS
     % esta es una secuencia  aleatoria de  bits que seran codificados con la 
     % maquina de estados de ejemplo del libro de Bixio Rimoldi
@@ -350,16 +354,18 @@ for SNR=1:0.5:5 %repito la simulacion para obtener  distintos valores de BER vs 
             errores_de_bit=errores_de_bit+1;
         end
     end
-
-    BER=errores_de_bit/(length(simbolos_fuente)-4)
+    
+    SNRvec(iter)=SNR; 
+    BER(iter)=errores_de_bit/(length(simbolos_fuente)-4)
     
     
     %% Limite de error superior teorico:
     %https://la.mathworks.com/help/comm/ug/bit-error-rate-ber.html#fp13269
     dspec.dfree = 10; % Minimum free distance of code
-    dspec.weight = [1 0 4 0 12 0 32 0 80 0 192 0 448 0 1024 0 2304 0 5120 0]; % Distance spectrum of code
+    dspec.weight = [ 0 1  2 4 8 16 32 64 128 512 1024 2048 4096]; % Distance spectrum of code
     SNRt=1:0.5:5;
-    berbound = bercoding(SNRt,'conv','hard',0.35,dspec);
+    berbound = bercoding(SNRt,'conv','hard',0.345,dspec);
+        axis([1 5 10e-5 10e0])
         grid
         semilogy(SNRt,berbound) % Plot the results.
         xlabel('SNR (dB)'); ylabel('Probabilidad de error');
@@ -368,8 +374,19 @@ for SNR=1:0.5:5 %repito la simulacion para obtener  distintos valores de BER vs 
 
 
     %% En este ultimo bloque se grafica el BER simulado      % SNR= Realacion Señal Ruido: Es/No
-    semilogy(SNR,BER,'bx')                                   % BER= Bit Error Rate: errores detectados/catidad transmitida
+    semilogy(SNR,BER(iter),'bx');                            % BER= Bit Error Rate: errores detectados/catidad transmitida
     legend('BER teórico','BER simulado');
+    hold on
     grid
-end    
+end
 
+
+figure
+plot(ajuste)
+
+
+%% Curva de ajuste propuesta para los valores obtenidos de BER vs SNR
+%     figure
+%     intervalos_SNR=SNRmin:0.5:SNRmax;
+%     berfit([SNRmin:0.5:SNRmax],BER,intervalos_SNR,[],'exp');
+%     
