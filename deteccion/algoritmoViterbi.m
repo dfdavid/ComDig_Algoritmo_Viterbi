@@ -11,14 +11,14 @@ for SNR=SNRmin:0.5:SNRmax %repito la simulacion para obtener  distintos valores 
     % esta es una secuencia  aleatoria de  bits que seran codificados con la 
     % maquina de estados de ejemplo del libro de Bixio Rimoldi
 
-    simbolos_fuente=2*randi([0,1],1,10000)-1;
+%     simbolos_fuente=2*randi([0,1],1,10)-1;
+    simbolos_fuente=[1 -1 1 -1 -1];
 
 
-    %en la sieguiente linea se llama a la funcion 'codificadorConvolucional'
-    %que codifica los bits fuente en tuplas de acuerdo al mapa de codificacion
-    %especificado en su propio codigo, en este caso, es el que propone Bixio
-    %Rimoldi
-    simbolos_codificados=codificadorConvolucional(simbolos_fuente); %ORIGINAL
+    %en la sieguiente linea se llama a la funcion que simula el paso por un
+    %canal que introduce ISI modelado con un filtro FIR
+    salida_canal=paso_por_canal(simbolos_fuente);
+    
 
 
     % generacion de ruido AWGN 
