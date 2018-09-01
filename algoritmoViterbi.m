@@ -1,5 +1,5 @@
 clear all 
-close all
+% close all
 clc
 
 iter=0; %inicializo el indice de iternaciones que uso para el vector BER
@@ -363,7 +363,7 @@ for SNR=SNRmin:0.5:SNRmax %repito la simulacion para obtener  distintos valores 
     %https://la.mathworks.com/help/comm/ug/bit-error-rate-ber.html#fp13269
     dspec.dfree = 10; % Minimum free distance of code
     dspec.weight = [ 0 1  2 4 8 16 32 64 128 512 1024 2048 4096]; % Distance spectrum of code
-    SNRt=1:0.5:5;
+    SNRt=SNRmin:0.5:SNRmax;
     berbound = bercoding(SNRt,'conv','hard',0.345,dspec);
         axis([1 5 10e-5 10e0])
         grid
@@ -381,12 +381,14 @@ for SNR=SNRmin:0.5:SNRmax %repito la simulacion para obtener  distintos valores 
 end
 
 
-figure
-plot(ajuste)
+
 
 
 %% Curva de ajuste propuesta para los valores obtenidos de BER vs SNR
 %     figure
-%     intervalos_SNR=SNRmin:0.5:SNRmax;
-%     berfit([SNRmin:0.5:SNRmax],BER,intervalos_SNR,[],'exp');
-%     
+%     semilogy(SNR,BER(iter),'bx'); 
+%     hold on
+    intervalos_SNR=SNRmin:0.5:SNRmax;
+    berfit([SNRmin:0.5:SNRmax],BER,intervalos_SNR,[],'exp');
+    legend('BER teórico','BER simulado');
+    
