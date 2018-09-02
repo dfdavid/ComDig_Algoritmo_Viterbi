@@ -1,24 +1,23 @@
 function s=traceback(state_matrix,cost_vector,tamVentana, Estados)
     dimensiones=size(state_matrix);
     nEstados=dimensiones(1);
-%     nIteraciones=dimensiones(2);
+    %nIteraciones=dimensiones(2);
     %determino en la ultima columna de state_matrix cual es el estado
     %inicial 
     for e=1:nEstados 
         %max=0; si le asigno cero aca siempre me pisa el valor de max de la
         %pasada anterior
         if e==1 %solo entro en la primera pasada para inicializar
-            max=0;
+            min=100000000;
         end
-        if (cost_vector(e)>max )
-            max=cost_vector(e);
+        if (cost_vector(e)<min )
+            min=cost_vector(e);
             eInicial=e;
         end
     end
         
         %una vez conocido el estado inicial comienza el traceback
-        %for j=tamVentana:-1:1 %aca debo cambiar tamVentana por
-        %tamVentana-1 (ya que para las 3 columnas de la ventana, se hacen 'dos saltos' hacia atras en el traceback)
+        
          for j=tamVentana:-1:2
             ir_a=state_matrix(eInicial,j);
             s=Estados(eInicial,1); %%Estados es una matriz cuyas filas son los estados posible y las columnas on las componentes de dichos estados

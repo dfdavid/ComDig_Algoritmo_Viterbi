@@ -1,23 +1,24 @@
 clear all 
-close all
+%close all
 clc
 
 iter=0; %inicializo el indice de iternaciones que uso para el vector BER
-SNRmax=6;
+SNRmax=10;
 SNRmin=0;
-% for SNR=SNRmin:0.5:SNRmax %repito la simulacion para obtener  distintos valores de BER vs SNR
+for SNR=SNRmin:0.5:SNRmax %repito la simulacion para obtener  distintos valores de BER vs SNR
     iter = iter+1;
     %% SECUENCIA DE SIMBOLOS
     % esta es una secuencia  aleatoria de  bits que seran codificados con la 
     % maquina de estados de ejemplo del libro de Bixio Rimoldi
 
-%     simbolos_fuente=2*randi([0,1],1,10)-1;
-    simbolos_fuente=[1 -1 1 -1 -1  1 -1 1 -1 -1 ];
+    simbolos_fuente=2*randi([0,1],1,50000)-1;
+    %simbolos_fuente=[1 -1 1 -1 -1  1 -1 1 -1 -1   1 -1 1 -1 -1  1 -1 1 -1 -1   1 -1 1 -1 -1  1 -1 1 -1 -1 ];
 
 
     %en la sieguiente linea se llama a la funcion que simula el paso por un
     %canal que introduce ISI modelado con un filtro FIR
     salida_del_canal=paso_por_canal(simbolos_fuente);
+    
     
 
 
@@ -27,20 +28,16 @@ SNRmin=0;
         % ruido=ruido*1;
         % simbolos_codificados=simbolos_codificados+ruido;
 
-    % Aca se le añade el ruido
-        SNR=3;
-        salida_del_canal_old=salida_del_canal;
+    % Aca se le añade el ruido usando la funcion AWGN
+        %SNR=5;
+        %salida_del_canal_old=salida_del_canal;
         salida_del_canal=awgn(salida_del_canal,SNR);
         % stem(simbolos_codificados)
 
-
-
-
+        
     %se inicializa el vector que contiene los simbolos detectados que se irá
     %llenando con las sucesivas llamadas a traceback
     simbolos_detectados=zeros(1, length(simbolos_fuente));
-
-
 
 
     %% Trellis provisto como matriz
@@ -51,12 +48,16 @@ SNRmin=0;
              3             2              4          0        -0.3         -1.1
              4             2              4          0        -0.9         -1.7
              ];
+         
+         
     %% VARIABLES NECESARIAS
-    tamVentana=6; %es igual a la profundidad de truncamiento (normalmente es cantEstados*5)
+    tamVentana=100; %es igual a la profundidad de truncamiento (normalmente es cantEstados*5)
     Estados=[ 1  1;
              -1  1;
               1 -1;
              -1 -1]; % Esta matriz guarda los estados posibles del Trellis
+         
+         
 
     %% STATE_MATRIX
 
@@ -77,14 +78,11 @@ SNRmin=0;
 
 
 
-    %% ALGORITMO DE VITERBI DECODIFICADOR
-    % voy recorriendo de a uno los simbolos recibidos y lleno la state_matrix y
-    % el cost_vector iteracion tras iteracion
+    %% ALGORITMO DE VITERBI DETECTOR
+    % voy recorriendo de a uno los simbolos recibidos, se va llenando la
+    % state_matrix y el cost_vector iteracion tras iteracion
 
-    % dimension=size(simbolos_codificados);
-    % cantFilas=dimension(1); %cantidad de tuplas que se recibieron
-
-
+    
     %% 1 %% Estado inicial del Trellis y período transitorio
 
     for j=1:3 % el 3 esta hardcodeado, ya que si el Trellis tuviera mas estados ese valor es funcion de la cantidad de estados
@@ -143,14 +141,6 @@ SNRmin=0;
         end % fin del if j==3, dentro del recorrido por las iteraciones de j=1:3
     end % fin del transitorio
 
-    % en versiones anteriores del este algoritmo el tam de ventana era 3, en
-    % ese caso se llamaba a traceback en este punto
-%             if j>= tamVentana
-%                 simbolo=traceback(state_matrix, cost_vector, tamVentana, Estados);
-%             %     disp('el simbolo decodificado es: ')
-%             %     disp(simbolo)
-%                 simbolos_decodificados(1,j-2)=simbolo; % la decodificacion tiene retardo, por eso se pone j-2
-%             end
 
     %% 2 %% En este punto comienza el llenado de la ventana
     while j<tamVentana %aqui se continua desde que termina el transitorio hasta que se llena completamente la ventana
@@ -344,7 +334,7 @@ SNRmin=0;
     %inicializo la cuenta de errores
     errores_de_bit=0;
 
-    for i=1:length(simbolos_detectados)-4
+    for i=1:length(simbolos_detectados)-(tamVentana-2) % El llenado de la ventana provoca un "retardo" para la deteccion/decodificación, el numero de ajuste "(tamVentana-2)" compensa este efecto en el conteo de errores. Se puede quitar la compensación para verificar que sin tenerla, el numero de "errores de ventana" es constante
         if simbolos_detectados(i)==simbolos_fuente(i)
             % si son iguales no hay error -> no se hace nada
         else
@@ -353,37 +343,41 @@ SNRmin=0;
     end
     
     % este vector contiene diferentes valores de SNR utilizados en los ciclos para contruir el diagrama BER vs SNR
-%     SNRvec(iter)=SNR;
+    SNRvec(iter)=SNR;
     
     % este vector contiene los correspondientes BER asociados al SNRvec
-%     BER(iter)=errores_de_bit/(length(simbolos_fuente)-4)   
+    BER(iter)=errores_de_bit/(length(simbolos_fuente)-4)   
     
     
     %% Limite de error superior teorico:
     %https://la.mathworks.com/help/comm/ug/bit-error-rate-ber.html#fp13269
     
-%     dspec.dfree = 10; % Minimum free distance of code
-%     dspec.weight = [ 0 1  2 4 8 16 32 64 128 512 1024 2048 4096]; % Distance spectrum of code
-%     SNRt=1:0.5:5;
-%     berbound = bercoding(SNRt,'conv','hard',0.345,dspec);
-%         axis([1 5 10e-5 10e0])
-%         grid
-%         semilogy(SNRt,berbound) % Plot the results.
-%         xlabel('SNR (dB)'); ylabel('Probabilidad de error');
-%         title('Limite de error superior teorico de BER (Codificador Convolucional)');
-%         hold on
+    SNRt=SNRmin:0.5:SNRmax; %SNRt es el teorico
+    SNRt=[0 0.500000000000000 1 1.50000000000000 2 2.50000000000000 3 3.50000000000000 4 4.50000000000000 5 5.50000000000000 6 6.50000000000000 7 7.50000000000000 8 8.50000000000000 9 9.50000000000000 10];
+        %berbound = qfunc(sqrt(2*SNR));
+        
+        BERt=[0.146446609406726 0.136423816823672 0.126733461932933 0.117410572979398 0.108484732049584 0.0999796880773162 0.0919131757263162 0.0842969351764523 0.0771369160563911 0.0704336394279638 0.0641826854495230 0.0583752713011990 0.0529988839256388 0.0480379346117713 0.0434744067460626 0.0392884734487651 0.0354590676278381 0.0319643926657223 0.0287823671004334 0.0258910010231622 0.0232687053772038];
+        %axis([SNRmin SNRmax 10e-10 10e0])
+        grid
+        semilogy(SNRt,BERt) % Plot the results.
+        xlabel('SNR (dB)'); ylabel('Probabilidad de error');
+        title('Limite de error superior teorico de BER (Tx sin Codificación)');
+        hold on
 
 
-    %% En este ultimo bloque se grafica el BER simulado      % SNR= Realacion Señal Ruido: Es/No
-%     semilogy(SNR,BER(iter),'bx');                            % BER= Bit Error Rate: errores detectados/catidad_transmitida
-%     legend('BER teórico','BER simulado');
-%     hold on
-%     grid
-% end
+    %% En este bloque se grafica el BER simulado      % SNR= Realacion Señal Ruido: Es/No
+    semilogy(SNR,BER(iter),'bx');                            % BER= Bit Error Rate: errores detectados/catidad_transmitida
+    legend('BER teórico','BER simulado');
+    hold on
+    grid
+ end
 
 
 %% Curva de ajuste propuesta para los valores obtenidos de BER vs SNR
-% 
-%     intervalos_SNR=SNRmin:0.5:SNRmax;
-%     berfit([SNRmin:0.5:SNRmax],BER,intervalos_SNR,[],'exp');
-%     
+
+    intervalos_SNR=SNRmin:0.5:SNRmax;
+    berfit([SNRmin:0.5:SNRmax],BER,intervalos_SNR,[],'exp');
+    %axis([SNRmin SNRmax 10e-5 10e0])
+    xlabel('SNR (dB)'); ylabel('Probabilidad de error');
+    legend('BER teórico','BER simulado');
+    
