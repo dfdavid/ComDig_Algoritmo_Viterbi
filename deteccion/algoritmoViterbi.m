@@ -1,5 +1,6 @@
 clear all 
 %close all
+format long
 clc
 
 iter=0; %inicializo el indice de iternaciones que uso para el vector BER
@@ -359,14 +360,14 @@ for SNR=SNRmin:0.5:SNRmax %repito la simulacion para obtener  distintos valores 
         BERt=[0.146446609406726 0.136423816823672 0.126733461932933 0.117410572979398 0.108484732049584 0.0999796880773162 0.0919131757263162 0.0842969351764523 0.0771369160563911 0.0704336394279638 0.0641826854495230 0.0583752713011990 0.0529988839256388 0.0480379346117713 0.0434744067460626 0.0392884734487651 0.0354590676278381 0.0319643926657223 0.0287823671004334 0.0258910010231622 0.0232687053772038];
         %axis([SNRmin SNRmax 10e-10 10e0])
         grid
-        semilogy(SNRt,BERt) % Plot the results.
+        semilogy(SNRt,BERt,'b') % Plot the results.
         xlabel('SNR (dB)'); ylabel('Probabilidad de error');
         title('Limite de error superior teorico de BER (Tx sin Codificación)');
         hold on
 
 
     %% En este bloque se grafica el BER simulado      % SNR= Realacion Señal Ruido: Es/No
-    semilogy(SNR,BER(iter),'bx');                            % BER= Bit Error Rate: errores detectados/catidad_transmitida
+    semilogy(SNR,BER(iter),'bx');                     % BER= Bit Error Rate: errores detectados/catidad_transmitida
     legend('BER teórico','BER simulado');
     hold on
     grid
@@ -377,7 +378,7 @@ for SNR=SNRmin:0.5:SNRmax %repito la simulacion para obtener  distintos valores 
 
     intervalos_SNR=SNRmin:0.5:SNRmax;
     berfit([SNRmin:0.5:SNRmax],BER,intervalos_SNR,[],'exp');
-    %axis([SNRmin SNRmax 10e-5 10e0])
+    axis([-1 10 10e-8 10e0]);
     xlabel('SNR (dB)'); ylabel('Probabilidad de error');
     legend('BER teórico','BER simulado');
     

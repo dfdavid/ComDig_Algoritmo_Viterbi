@@ -1,11 +1,13 @@
 clear all 
 % close all
+format long
 clc
 
 iter=0; %inicializo el indice de iternaciones que uso para el vector BER
-SNRmax=6;
 SNRmin=0;
-for SNR=SNRmin:0.5:SNRmax %repito la simulacion para obtener  distintos valores de BER vs SNR
+Espac=0.25;
+SNRmax=10;
+for SNR=SNRmin:Espac:SNRmax %repito la simulacion para obtener  distintos valores de BER vs SNR
     iter = iter+1;
     %% SECUENCIA DE SIMBOLOS
     % esta es una secuencia  aleatoria de  bits que seran codificados con la 
@@ -361,13 +363,16 @@ for SNR=SNRmin:0.5:SNRmax %repito la simulacion para obtener  distintos valores 
     
     %% Limite de error superior teorico:
     %https://la.mathworks.com/help/comm/ug/bit-error-rate-ber.html#fp13269
+    
     dspec.dfree = 10; % Minimum free distance of code
     dspec.weight = [ 0 1  2 4 8 16 32 64 128 512 1024 2048 4096]; % Distance spectrum of code
-    SNRt=SNRmin:0.5:SNRmax;
+    SNRt=SNRmin:1:SNRmax;
+    %SNRt=[1 2 3 4 5 6 7 8];
     berbound = bercoding(SNRt,'conv','hard',0.345,dspec);
-        axis([1 5 10e-5 10e0])
+    %berbound=[ 1 1 1e-1 1e-2 1e-3 1e-4 1.5e-6 1.1e-7  ];
+        axis([1 SNRmax 10e-7 10e0])
         grid
-        semilogy(SNRt,berbound) % Plot the results.
+        semilogy(SNRt,berbound,'b') % Plot the results.
         xlabel('SNR (dB)'); ylabel('Probabilidad de error');
         title('Limite de error superior teorico de BER (Codificador Convolucional)');
         hold on
@@ -378,17 +383,21 @@ for SNR=SNRmin:0.5:SNRmax %repito la simulacion para obtener  distintos valores 
     legend('BER teórico','BER simulado');
     hold on
     grid
+        
 end
 
-
-
-
-
-%% Curva de ajuste propuesta para los valores obtenidos de BER vs SNR
+    %% Curva de ajuste propuesta para los valores obtenidos de BER vs SNR
 %     figure
 %     semilogy(SNR,BER(iter),'bx'); 
 %     hold on
-    intervalos_SNR=SNRmin:0.5:SNRmax;
-    berfit([SNRmin:0.5:SNRmax],BER,intervalos_SNR,[],'exp');
+    intervalos_SNR=SNRmin:Espac:SNRmax;
+    berfit([SNRmin:Espac:SNRmax],BER,intervalos_SNR,[],'exp');
+    %axis([-1 8 10e-8 10e0])
     legend('BER teórico','BER simulado');
+    xlabel('SNR [dB]'); ylabel('Probabilidad de error');
+    title('BER vs. SNR[dB] curva ajustada a la simulación');
+
+
+
+
     
