@@ -4,9 +4,11 @@ format long
 clc
 
 iter=0; %inicializo el indice de iternaciones que uso para el vector BER
-SNRmax=10;
+
 SNRmin=0;
-for SNR=SNRmin:0.5:SNRmax %repito la simulacion para obtener  distintos valores de BER vs SNR
+Espac=0.25;
+SNRmax=10;
+for SNR=SNRmin:Espac:SNRmax %repito la simulacion para obtener  distintos valores de BER vs SNR
     iter = iter+1;
     %% SECUENCIA DE SIMBOLOS
     % esta es una secuencia  aleatoria de  bits que seran codificados con la 
@@ -376,8 +378,8 @@ for SNR=SNRmin:0.5:SNRmax %repito la simulacion para obtener  distintos valores 
 
 %% Curva de ajuste propuesta para los valores obtenidos de BER vs SNR
 
-    intervalos_SNR=SNRmin:0.5:SNRmax;
-    berfit([SNRmin:0.5:SNRmax],BER,intervalos_SNR,[],'exp');
+    intervalos_SNR=SNRmin:Espac:SNRmax;
+    berfit([SNRmin:Espac:SNRmax],BER,intervalos_SNR,[],'exp');
     axis([-1 10 10e-8 10e0]);
     xlabel('SNR (dB)'); ylabel('Probabilidad de error');
     legend('BER teórico','BER simulado');
